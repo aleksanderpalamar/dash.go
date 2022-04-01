@@ -2,7 +2,8 @@
 import { Box, Checkbox, Table as ChakraTable, Tbody, Td, Th, Thead, Tr, Text, useBreakpointValue } from "@chakra-ui/react";
 import { ButtonEdit } from "../ButtonEdit";
 
-export function Table() {
+export function Table() { 
+
   const isWideVersion = useBreakpointValue({
     base: false,
     lg: true,
