@@ -1,16 +1,16 @@
-import { createServer, Factory, Model } from 'miragejs';
-import faker from '@withshepherd/faker';
+import { createServer, Factory, Model, Response } from "miragejs";
+import faker from "@withshepherd/faker";
 
-type User = {
+interface User {
   name: string;
   email: string;
   created_at: string;
 }
 
 export function makeServer() {
-  const server =  createServer({
+  const server = createServer({
     models: {
-      user: Model.extend<Partial<User>>({})
+      user: Model.extend<Partial<User>>({}),
     },
 
     factories: {
@@ -19,29 +19,50 @@ export function makeServer() {
           return `User ${i + 1}`;
         },
         email(i: number) {
-          return `${faker.internet.email(`${'user'}`, `${i + 1}`, 'example.com')}`;
+          return `${faker.internet.email(
+            `${"user"}`,
+            `${i + 1}`,
+            "example.com"
+          )}`;
         },
         createdAt() {
           return `${faker.date.recent(10).toISOString()}`;
         },
-      })
+      }),
     },
 
     seeds(server) {
-      server.createList('user', 10);
-    },    
+      server.createList("user", 10);
+    },
 
     routes() {
-      this.namespace = 'api';
+      this.namespace = "api";
       this.timing = 750;
 
-      this.get('/users');
-      this.post('/users');
+      this.get("/users", function (schema, request) {
+        const { page = 1, per_page = 10 } = request.queryParams;
+        
+        const total = schema.all("user").length;
 
-      this.namespace = '';
+        const pageStart = (Number(page) - 1) * Number(per_page);
+        const pageEnd = pageStart + Number(per_page);
+
+        const users = this.serialize(schema.all("user")).users.slice(pageStart, pageEnd);
+
+        return new Response(
+          200, // status code
+          {"x-total-count": String(total)}, // headers
+          { users } // payload
+        ) 
+      });
+
+      this.get('/users/:id')
+      this.post("/users");
+
+      this.namespace = "";
       this.passthrough();
-    }
-  })
+    },
+  });
 
   return server;
 }

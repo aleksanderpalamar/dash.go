@@ -4,10 +4,10 @@ interface ChakraHeadingProps {
   title: string;
 }
 
-export function Heading({ title }: ChakraHeadingProps) {
+export function Heading({ title }: ChakraHeadingProps) {  
   return (
     <ChakraHeading size="lg" fontWeight="normal">
-      {title}
+      {title}      
     </ChakraHeading>
   )
 }
